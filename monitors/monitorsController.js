@@ -1,5 +1,4 @@
 import Monitor from './monitorModel.js';
-import Student from '../students/studentModel.js';
 
 export function createMonitor(req,res) {
   const {name, gradeReference} = req.body;
@@ -25,26 +24,58 @@ export function getAllMonitors(req, res) {
     });
 }
 
-export async function checkMonitorAvailability(day, gradeReference) {
+// export async function checkMonitorAvailability(gradeReference) {
+
+//   try {
+//     const monitors = await Monitor.find();
+
+//     for (const timeSlot of gradeReference) {
+//       let verifier = true
+
+//       for (const monitor of monitors) {
+//         if(!monitor.gradeReference.includes(timeSlot)){
+//           verifier = false
+//         }
+//       }
+
+//       if (!verifier || monitors.length == 0){
+//         return false
+//       }
+//     }
+
+//     return true
+
+//   } catch (error) {
+//     console.error('Erro ao verificar disponibilidade do monitor:', error);
+//     return false;
+//   }
+// }
+
+
+export async function checkMonitorAvailability(gradeReference) {
   try {
     const monitors = await Monitor.find();
 
-    for (const monitor of monitors) {
-      for (const timeSlot of monitor.gradeReference) {
-        if (gradeReference.includes(timeSlot)) {  // Horário encontrado no  monitor
-          const studentsCount = await Student.countDocuments({ gradeReference: timeSlot });
-          if (studentsCount < 8) { // Horário disponível
-            return true;
-          }else{
-            return false; //monitor lotado
-          }
+    for (const timeSlot of gradeReference) {
+      let verifier = false;
+
+      for (const monitor of monitors) {
+        if (monitor.gradeReference.includes(timeSlot)) {
+          verifier = true;
+          break;
         }
       }
+
+      if (!verifier || monitors.length == 0) {
+        return false;
+      }
     }
-    return false;// Não encontrou nenhum horário disponível
+
+    return true;
   } catch (error) {
     console.error('Erro ao verificar disponibilidade do monitor:', error);
     return false;
   }
 }
+
 

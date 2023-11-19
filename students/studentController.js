@@ -1,11 +1,11 @@
 import Student from './studentModel.js';
 
 export function createStudent(req, res) {
-  const { name, day, gradeReference } = req.body;
+  const { name, date, gradeReference } = req.body;
 
   const student = new Student({
     name,
-    day,
+    date,
     gradeReference
   });
 
@@ -23,7 +23,36 @@ export function getAllStudents(req, res) {
     .then((students) => {
       res.json(students);
     })
-    .catch((error) => {
+    .catch(() => {
       res.status(500).json({ error: 'Erro ao buscar os alunos' });
     });
+}
+
+export async function countStudents(dates){
+  try{
+    const students = await Student.find()
+
+      for (const date of dates){
+        let counter = 0
+
+        for (const student of students){
+
+          for (const student_date of student.date){
+
+            if (student_date.getTime() == new Date(date).getTime()){
+              counter++
+            }
+          }
+        }
+
+        if (counter >= 8){
+          return false
+        }
+      }
+
+    return true
+  }
+  catch(error){
+    return false
+  }
 }

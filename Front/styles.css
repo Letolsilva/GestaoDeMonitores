@@ -1,0 +1,111 @@
+body {
+    font-family: 'Arial', sans-serif;
+    padding: 20px;
+    background-color: #f4f4f4;
+    text-align: center;
+  }
+  
+  h1 {
+    color: #333;
+  }
+  
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  form {
+    max-width: 400px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+  }
+  
+  .list-container {
+    max-width: 400px;
+    min-width: 250px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    overflow-y: auto; /* Add scroll bar for vertical overflow */
+    max-height: 300px; /* Set a maximum height for the scrollable container */
+  }
+  
+  .label-container {
+    max-width: 400px; /* Set a maximum width for the labels to ensure consistency */
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  input, button {
+    margin-bottom: 20px;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  button {
+    background-color: #4caf50;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  .list-container {
+    max-width: 100%; /* Make .list-container take up the full width of the container */
+    flex: 1; /* Distribute available space equally among .list-container and form */
+  }
+  
+  .list-container div {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #e0f7fa;
+    box-sizing: border-box;
+  }
+  
+  .popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: none;
+    width: 60%;
+    max-width: 600px;
+    padding: none;
+    border: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+  }
+  
+  
+  .popup-content {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    padding: 40px;
+    text-align: center;
+    color: #333;
+  }
+  
+  .warning-message {
+    color: red;
+  }
+  

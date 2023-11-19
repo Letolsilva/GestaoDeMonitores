@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Sistema de Monitores</title>
+</head>
+
+<body>
+  <h1>Cadastro de Estudantes</h1>
+  <div class="container">
+
+    <!-- Lista de Monitores Disponíveis abaixo do formulário -->
+    <div id="monitorList" class="list-container"></div>
+
+    <form id="studentForm">
+      <label for="name">Nome:</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="date">Data:</label>
+      <input type="date" id="date" name="date" required>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById('date').min = getCurrentDate();
+        });
+      </script>
+     
+      <label for="gradeReference">Horários:</label>
+      <input type="text" id="gradeReference" name="gradeReference" placeholder="Separados por vírgula" required>
+
+      <button type="button"
+        onclick="addStudent(); showPopup(salvaStudents[salvaStudents.length - 1], salvaStudents.length - 1)">Cadastrar
+        temporariamente</button>
+
+    </form>
+
+    <!-- Lista de Grade ao lado -->
+    <div id="gradeList" class="list-container"></div>
+  </div>
+
+  <!-- Popup -->
+  <div id="popup" class="popup">
+    <div id="popup-content" class="popup-content"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="listagens.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>

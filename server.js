@@ -1,6 +1,7 @@
 import express from 'express';
 import routes from './routes.js';
 import mongoose from 'mongoose';
+import cors from 'cors'; 
 
 const app = express();
 const PORT = 3000;
@@ -19,7 +20,9 @@ mongoose.connect('mongodb://localhost/monitorManagement', {
   });
 
 app.use(express.json());
+app.use(cors());
 app.use('/api', routes);
+
 
 app.listen(PORT, () => {
   console.log(`Servidor em execução na porta ${PORT}`);
