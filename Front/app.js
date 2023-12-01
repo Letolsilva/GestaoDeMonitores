@@ -5,6 +5,7 @@ function submitForm(data,path) {
       .then(response => {
           alert('Cadastro concluído com sucesso!');
           clearForm();
+          window.location.reload()
       })
       .catch(error => {
           alert('Erro ao cadastrar: ' + error.response.data.error);
@@ -43,6 +44,7 @@ function addToGrade(){
       "description": description
     }]
     submitForm({"Grade":grade},'grades')
+    localStorage.setItem('form', 'grade');
   }
   else{
     alert("A entrada está em um formato inválido. Siga o exemplo: seg - 07:00 - 08:00")
@@ -66,6 +68,7 @@ async function addMonitor() {
   }
 
   submitForm(monitorData,'monitors')
+  localStorage.setItem('form', 'monitor');
 }
 
 function showPopup(studentData, index) {
@@ -89,6 +92,7 @@ function cadastrarStudent() {
   const latestStudentData = salvaStudents[latestStudentIndex];
   submitForm(latestStudentData,'students');
   closePopup(); 
+  localStorage.setItem('form', 'student');
   window.location.reload()
 }
 
@@ -133,7 +137,6 @@ function getNextDayOfWeek(dayOfWeek,id) {
 }
 
 function switchToMonitors(){
-  console.log("ok");
   document.getElementById("pageHeader").innerText = "Cadastro de Monitores"
   document.getElementById("studentForm").style.display = "none"
   document.getElementById("monitorForm").style.display = "block"
@@ -144,6 +147,8 @@ function switchToMonitors(){
 
   document.getElementById("switchBack").onclick = switchToStudents
   document.getElementById("switchFoward").onclick = switchToGrade
+
+  localStorage.setItem('form', 'monitor');
 }
 
 function switchToStudents(){
@@ -157,6 +162,8 @@ function switchToStudents(){
 
   document.getElementById("switchBack").onclick = switchToGrade
   document.getElementById("switchFoward").onclick = switchToMonitors
+
+  localStorage.setItem('form', 'student');
 }
 
 function switchToGrade(){
@@ -170,10 +177,23 @@ function switchToGrade(){
 
   document.getElementById("switchBack").onclick = switchToMonitors
   document.getElementById("switchFoward").onclick = switchToStudents
+
+  localStorage.setItem('form', 'grade');
 }
 
 window.onload = ()=>{
   load_grade()
+  const form = localStorage.getItem('form');
+
+  if (localStorage.getItem('form') === 'student' || localStorage.getItem('form') == null){
+    switchToStudents()
+  }
+  if (localStorage.getItem('form') === 'monitor'){
+    switchToMonitors()
+  }
+  if (localStorage.getItem('form') === 'grade'){
+    switchToGrade()
+  }
 
   var daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
 
@@ -251,6 +271,8 @@ function removeStudent(id){
   axios.post(apiUrl, data)
       .then(response => {
           alert('Aluno removido com sucesso!');
+          localStorage.setItem('form', 'student');
+          window.location.reload()
       })
       .catch(error => {
           alert('Erro ao remover: ' + error.response.data.error);
@@ -265,6 +287,8 @@ function removeMonitor(id){
   axios.post(apiUrl, data)
       .then(response => {
           alert(response.data.message);
+          localStorage.setItem('form', 'monitor');
+          window.location.reload()
       })
       .catch(error => {
           alert('Erro ao remover: ' + error.response.data.error);
@@ -279,6 +303,8 @@ function removeGrade(id){
   axios.post(apiUrl, data)
       .then(response => {
           alert(response.data.message);
+          localStorage.setItem('form', 'grade');
+          window.location.reload()
       })
       .catch(error => {
           alert('Erro ao remover: ' + error.response.data.error);
