@@ -1,40 +1,4 @@
-function load_monitors(grade) {
-  fetch("http://localhost:3000/api/monitors")
-    .then((response) => response.json())
-    .then((data) => {
-      const monitorListDiv = document.getElementById("monitorList");
 
-      monitorListDiv.innerHTML = "";
-
-      data.forEach((monitor) => {
-
-        var studentGradeDescription =""
-        monitor.gradeReference.forEach(gradeReference =>{
-          const studentGradeId = gradeReference;
-          const foundGrade = grade.find(
-            (gradeItem) => gradeItem._id === studentGradeId
-          );
-          if (foundGrade) {
-            studentGradeDescription += foundGrade.description;
-            studentGradeDescription += "<br>";
-          } else {
-            console.warn(`Grade com _id ${studentGradeId} não encontrado.`);
-          }
-
-          studentGradeDescription += "<br>"
-        })
-        const monitorItem = document.createElement("div");
-        monitorItem.classList.add("monitorInstance");
-        monitorItem.innerHTML = `<div class="removeButton" style="display: none;"onclick="removeMonitor('${monitor._id}')">X</div><strong>${
-          monitor.name
-        }</strong><br>${studentGradeDescription}`;
-        monitorListDiv.appendChild(monitorItem);
-      });
-    })
-    .catch((error) => {
-      console.error("Erro ao obter os monitores disponíveis:", error);
-    });
-}
 
 function sortGrade(str1, str2) {
   const extrairDados = (str) => {
@@ -91,7 +55,7 @@ function load_students(grade) {
             Student_reference.getTime() < week
           ) {
             const studentItem = document.createElement("div");
-            studentItem.innerHTML = `<div class=\"student-print\"><div class="removeButton" style="display: none;"onclick="removeStudent('${student._id}')">X</div><strong>Nome:</strong> ${student.name}<br> <strong>Horário:</strong> ${studentGradeDescription}</div>`;
+            studentItem.innerHTML = `<div class=\"student-print\"><strong>Nome:</strong> ${student.name}<br> <strong>Horário:</strong> ${studentGradeDescription}</div>`;
 
             document.getElementById(day).appendChild(studentItem);
           }
@@ -128,16 +92,10 @@ function updateSelect() {
   });
 }
 
-function load_grade(){
-
 fetch("http://localhost:3000/api/grades")
   .then((response) => response.json())
   .then((data) => {
-    const gradesListDiv = document.getElementById('gradeList');
     const gradeDropdown = document.getElementById("gradeReference");
-    const newMonitorGrade = document.getElementById("newMonitorGrade");
-
-    gradesListDiv.innerHTML = "";
 
     data = data.sort((a,b) => a._id - b._id)
 
@@ -146,35 +104,13 @@ fetch("http://localhost:3000/api/grades")
     data = data.sort((a,b) => sortGrade(a.description,b.description))
 
     data.forEach((grade) => {
-      const gradeItem = document.createElement("div");
-      gradeItem.innerHTML = `<div class="removeButton" style="display: none;"onclick="removeGrade(${grade._id})">X</div>${grade.description} (${grade._id})`;
-      gradeItem.classList.add("gradeInstance")
-      gradesListDiv.appendChild(gradeItem);
-
       const option = document.createElement("option");
       option.value = grade._id;
       option.text = `${grade.description} (${grade._id})`;
       gradeDropdown.appendChild(option);
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.classList.add("checkbox");
-      checkbox.value = grade._id;
-
-      const label = document.createElement("div");
-      label.innerText = grade.description;
-
-      const monitorGrade = document.createElement("div");
-      monitorGrade.appendChild(label);
-      monitorGrade.appendChild(checkbox);
-      monitorGrade.classList.add("monitorFormOption");
-
-      newMonitorGrade.appendChild(monitorGrade);
     });
     load_students(data);
-    load_monitors(data)
   })
   .catch((error) => {
     console.error("Erro ao obter as grade disponíveis:", error);
   });
-}

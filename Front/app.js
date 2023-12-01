@@ -43,14 +43,13 @@ function addToGrade(){
       "description": description
     }]
     submitForm({"Grade":grade},'grades')
-    
   }
   else{
     alert("A entrada está em um formato inválido. Siga o exemplo: seg - 07:00 - 08:00")
   }
 }
 
-function addMonitor() {
+async function addMonitor() {
   const name = document.getElementById('nameMonitor').value;
   const gradeReference = document.getElementsByClassName('checkbox')
   let selectedReferences = []
@@ -76,7 +75,7 @@ function showPopup(studentData, index) {
       <strong>Data:</strong> ${studentData.date} - 
       <strong>Referências de Grade:</strong> ${studentData.gradeReference.join(', ')}
       <p class="warning-message">Após cadastrar, não será mais possível editar ou excluir.</p>
-      <button onclick="removeStudent(${index})">Remover </button>
+      <button onclick="removeStudentVetor(${index})">Remover </button>
       <button onclick="cadastrarStudent()">Cadastrar</button>
       <button type="button" onclick="closePopup()">Fechar</button>
   `;
@@ -90,13 +89,13 @@ function cadastrarStudent() {
   const latestStudentData = salvaStudents[latestStudentIndex];
   submitForm(latestStudentData,'students');
   closePopup(); 
+  window.location.reload()
 }
 
-function removeStudent(index) {
+function removeStudentVetor(index) {
   salvaStudents.splice(index, 1);
   alert('Estudante removido com sucesso!');
   clearForm();
-  console.log(salvaStudents);
 }
 
 function closePopup() {
@@ -134,6 +133,7 @@ function getNextDayOfWeek(dayOfWeek,id) {
 }
 
 function switchToMonitors(){
+  console.log("ok");
   document.getElementById("pageHeader").innerText = "Cadastro de Monitores"
   document.getElementById("studentForm").style.display = "none"
   document.getElementById("monitorForm").style.display = "block"
@@ -173,6 +173,7 @@ function switchToGrade(){
 }
 
 window.onload = ()=>{
+  load_grade()
 
   var daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
 
@@ -250,7 +251,6 @@ function removeStudent(id){
   axios.post(apiUrl, data)
       .then(response => {
           alert('Aluno removido com sucesso!');
-          window.location.reload()
       })
       .catch(error => {
           alert('Erro ao remover: ' + error.response.data.error);
@@ -265,7 +265,6 @@ function removeMonitor(id){
   axios.post(apiUrl, data)
       .then(response => {
           alert(response.data.message);
-          window.location.reload()
       })
       .catch(error => {
           alert('Erro ao remover: ' + error.response.data.error);
@@ -280,7 +279,6 @@ function removeGrade(id){
   axios.post(apiUrl, data)
       .then(response => {
           alert(response.data.message);
-          window.location.reload()
       })
       .catch(error => {
           alert('Erro ao remover: ' + error.response.data.error);
