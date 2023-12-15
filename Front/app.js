@@ -1,18 +1,17 @@
- //Salvando no banco de dados 
-function submitForm(studentData) {
-  const apiUrl = 'http://localhost:3000/api/students';
+function submitForm(data,path) {
+  const apiUrl = 'http://localhost:3000/api/' + path;
 
-  axios.post(apiUrl, studentData)
+  axios.post(apiUrl, data)
       .then(response => {
-          alert('Estudante cadastrado com sucesso!');
+          alert('Cadastro concluído com sucesso!');
           clearForm();
+          window.location.reload()
       })
       .catch(error => {
-          alert('Erro ao cadastrar estudante: ' + error.response.data.error);
+          alert('Erro ao cadastrar: ' + error.response.data.error);
       });
 }
 
-//Salva em um array para ser possivel editar ou excluir
 let salvaStudents = []
 function addStudent() {
   const name = document.getElementById('name').value;
@@ -25,7 +24,6 @@ function addStudent() {
   }
 
   const formattedDate = new Date(rawDate).toISOString();
-
   const studentData = {
       name,
       date: [formattedDate],
@@ -36,7 +34,43 @@ function addStudent() {
   
 }
 
-//Mostra o popUp e chama as funções
+function addToGrade(){
+  const description = document.getElementById("description").value
+  const regex = /^(seg|ter|qua|qui|sex)\s-\s\d{2}:\d{2}\s-\s\d{2}:\d{2}$/;
+
+  if (regex.test(description)){
+    const grade = [{
+      "_id": Number(document.getElementById("nextGrade").value),
+      "description": description
+    }]
+    submitForm({"Grade":grade},'grades')
+    localStorage.setItem('form', 'grade');
+  }
+  else{
+    alert("A entrada está em um formato inválido. Siga o exemplo: seg - 07:00 - 08:00")
+  }
+}
+
+async function addMonitor() {
+  const name = document.getElementById('nameMonitor').value;
+  const gradeReference = document.getElementsByClassName('checkbox')
+  let selectedReferences = []
+
+  Array.from(gradeReference).forEach(checkbox => {
+    if(checkbox.checked){
+      selectedReferences.push(checkbox.value)
+    }
+  })
+
+  const monitorData = {
+    name,
+    gradeReference: selectedReferences
+  }
+
+  submitForm(monitorData,'monitors')
+  localStorage.setItem('form', 'monitor');
+}
+
 function showPopup(studentData, index) {
   const popupContent = document.getElementById('popup-content');
   popupContent.innerHTML = `
@@ -44,7 +78,7 @@ function showPopup(studentData, index) {
       <strong>Data:</strong> ${studentData.date} - 
       <strong>Referências de Grade:</strong> ${studentData.gradeReference.join(', ')}
       <p class="warning-message">Após cadastrar, não será mais possível editar ou excluir.</p>
-      <button onclick="removeStudent(${index})">Remover </button>
+      <button onclick="removeStudentVetor(${index})">Remover </button>
       <button onclick="cadastrarStudent()">Cadastrar</button>
       <button type="button" onclick="closePopup()">Fechar</button>
   `;
@@ -56,39 +90,16 @@ function showPopup(studentData, index) {
 function cadastrarStudent() {
   const latestStudentIndex = salvaStudents.length - 1;
   const latestStudentData = salvaStudents[latestStudentIndex];
-  submitForm(latestStudentData);
+  submitForm(latestStudentData,'students');
   closePopup(); 
+  localStorage.setItem('form', 'student');
+  window.location.reload()
 }
 
-// function editStudent(index) {
-//   const name = document.getElementById('name').value;
-//   const rawDate = document.getElementById('date').value;
-//   const gradeReference = document.getElementById('gradeReference').value.split(',');
-
-//   if (!rawDate || isNaN(new Date(rawDate))) {
-//       alert('Data inválida!');
-//       return;
-//   }
-
-//   const formattedDate = new Date(rawDate).toISOString();
-
-//   const novoStudent = {
-//       name,
-//       date: [formattedDate],
-//       gradeReference: gradeReference.map(reference => Number(reference.trim()))
-//   };
-
-//   salvaStudents[index] = novoStudent;
-//   alert('Estudante editado com sucesso!');
-//    showPopup(novoStudent, index);
-//   clearForm();
-// }
-
-function removeStudent(index) {
+function removeStudentVetor(index) {
   salvaStudents.splice(index, 1);
   alert('Estudante removido com sucesso!');
   clearForm();
-  console.log(salvaStudents);
 }
 
 function closePopup() {
@@ -114,7 +125,188 @@ function getCurrentDate() {
   return currentDate;
 }
 
+function getNextDayOfWeek(dayOfWeek,id) {
+  const today = new Date();
+  const currentDayOfWeek = today.getDay();
+  const daysUntilNextDay = (dayOfWeek + 7 - currentDayOfWeek) % 7;
 
+  const nextDay = new Date(today);
+  nextDay.setDate(today.getDate() + daysUntilNextDay);
 
+  document.getElementById(id).innerText = "-  " + nextDay.getDate() + " / " + (nextDay.getMonth() + 1)
+}
 
+function switchToMonitors(){
+  document.getElementById("pageHeader").innerText = "Cadastro de Monitores"
+  document.getElementById("studentForm").style.display = "none"
+  document.getElementById("monitorForm").style.display = "block"
+  document.getElementById("students-display").style.display = "none"
+  document.getElementById("monitors-display").style.display = "block"
+  document.getElementById("gradeForm").style.display = "none"
+  document.getElementById("gradeDisplay").style.display = "none"
 
+  document.getElementById("switchBack").onclick = switchToStudents
+  document.getElementById("switchFoward").onclick = switchToGrade
+
+  localStorage.setItem('form', 'monitor');
+}
+
+function switchToStudents(){
+  document.getElementById("pageHeader").innerText = "Cadastro de Estudantes"
+  document.getElementById("studentForm").style.display = "block"
+  document.getElementById("monitorForm").style.display = "none"
+  document.getElementById("students-display").style.display = "block"
+  document.getElementById("monitors-display").style.display = "none"
+  document.getElementById("gradeForm").style.display = "none"
+  document.getElementById("gradeDisplay").style.display = "none"
+
+  document.getElementById("switchBack").onclick = switchToGrade
+  document.getElementById("switchFoward").onclick = switchToMonitors
+
+  localStorage.setItem('form', 'student');
+}
+
+function switchToGrade(){
+  document.getElementById("pageHeader").innerText = "Cadastro de Grade"
+  document.getElementById("studentForm").style.display = "none"
+  document.getElementById("monitorForm").style.display = "none"
+  document.getElementById("students-display").style.display = "none"
+  document.getElementById("monitors-display").style.display = "none"
+  document.getElementById("gradeForm").style.display = "block"
+  document.getElementById("gradeDisplay").style.display = "block"
+
+  document.getElementById("switchBack").onclick = switchToMonitors
+  document.getElementById("switchFoward").onclick = switchToStudents
+
+  localStorage.setItem('form', 'grade');
+}
+
+window.onload = ()=>{
+  load_grade()
+  const form = localStorage.getItem('form');
+
+  if (localStorage.getItem('form') === 'student' || localStorage.getItem('form') == null){
+    switchToStudents()
+  }
+  if (localStorage.getItem('form') === 'monitor'){
+    switchToMonitors()
+  }
+  if (localStorage.getItem('form') === 'grade'){
+    switchToGrade()
+  }
+
+  var daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
+
+  const currentDayIndex = new Date().getDay() -1
+  const adjustedIndex = currentDayIndex < 0 ? 4 : currentDayIndex
+  daysOfWeek = [
+    ...daysOfWeek.slice(adjustedIndex),
+    ...daysOfWeek.slice(0, adjustedIndex)
+  ];
+
+  const dict = {
+    'Segunda': 'monday',
+    'Terça': 'tuesday',
+    'Quarta': 'wednesday',
+    'Quinta': 'thursday',
+    'Sexta': 'friday'
+  }
+  
+
+  daysOfWeek.forEach(day => {
+
+    const dayDiv = document.createElement('div');
+    dayDiv.classList.add('day');
+
+    const headerDiv = document.createElement('div');
+    headerDiv.classList.add('day-header');
+
+    const dayParagraph = document.createElement('p');
+    dayParagraph.textContent = day;
+    headerDiv.appendChild(dayParagraph);
+
+    const headerDateDiv = document.createElement('div');
+    headerDateDiv.id = `${dict[day]}`;
+
+    const StudentsListDiv = document.createElement('div');
+    StudentsListDiv.id = `${dict[day]}-list`;
+    StudentsListDiv.classList.add('students-list')
+    
+    dayDiv.appendChild(headerDiv);
+    headerDiv.appendChild(headerDateDiv);
+    dayDiv.appendChild(StudentsListDiv)
+
+    document.getElementById("week").appendChild(dayDiv);
+  });
+
+  getNextDayOfWeek(1,"monday");
+  getNextDayOfWeek(2, 'tuesday');
+  getNextDayOfWeek(3, 'wednesday');
+  getNextDayOfWeek(4, 'thursday');
+  getNextDayOfWeek(5, 'friday');
+}
+
+window.addEventListener('keydown', function(event) {
+  if (event.key === 'Shift') {
+    Array.from(this.document.getElementsByClassName("removeButton")).forEach(box => {
+    box.style.display = "block"
+    })
+  }
+});
+
+window.addEventListener('keyup', function(event) {
+  if (event.key === 'Shift') {
+      Array.from(this.document.getElementsByClassName("removeButton")).forEach(box => {
+        box.style.display = "none"
+      })
+
+  }
+});
+
+function removeStudent(id){
+
+  const apiUrl = 'http://localhost:3000/api/studentsRemove';
+  const data = {"_id":id}
+
+  axios.post(apiUrl, data)
+      .then(response => {
+          alert('Aluno removido com sucesso!');
+          localStorage.setItem('form', 'student');
+          window.location.reload()
+      })
+      .catch(error => {
+          alert('Erro ao remover: ' + error.response.data.error);
+      });
+}
+
+function removeMonitor(id){
+
+  const apiUrl = 'http://localhost:3000/api/monitorsRemove';
+  const data = {"_id":id}
+
+  axios.post(apiUrl, data)
+      .then(response => {
+          alert(response.data.message);
+          localStorage.setItem('form', 'monitor');
+          window.location.reload()
+      })
+      .catch(error => {
+          alert('Erro ao remover: ' + error.response.data.error);
+      });
+}
+
+function removeGrade(id){
+
+  const apiUrl = 'http://localhost:3000/api/gradesRemove';
+  const data = {"_id":id}
+
+  axios.post(apiUrl, data)
+      .then(response => {
+          alert(response.data.message);
+          localStorage.setItem('form', 'grade');
+          window.location.reload()
+      })
+      .catch(error => {
+          alert('Erro ao remover: ' + error.response.data.error);
+      });
+}

@@ -6,7 +6,7 @@ export function createStudent(req, res) {
   const student = new Student({
     name,
     date,
-    gradeReference
+    gradeReference,
   });
 
   student.save()
@@ -23,12 +23,14 @@ export function getAllStudents(req, res) {
     .then((students) => {
       res.json(students);
     })
-    .catch(() => {
+    .catch((error) => {
+      console.error("Erro ao buscar os alunos:", error);
       res.status(500).json({ error: 'Erro ao buscar os alunos' });
     });
 }
 
-export async function countStudents(dates){
+
+export async function countStudents(dates,gradeReference){
   try{
     const students = await Student.find()
 
@@ -38,8 +40,7 @@ export async function countStudents(dates){
         for (const student of students){
 
           for (const student_date of student.date){
-
-            if (student_date.getTime() == new Date(date).getTime()){
+            if (student_date.getTime() == new Date(date).getTime() && student.gradeReference[0] == gradeReference[0]){
               counter++
             }
           }

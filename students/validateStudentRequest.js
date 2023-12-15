@@ -1,11 +1,13 @@
 import { checkMonitorAvailability } from '../monitors/monitorsController.js'; 
 import { countStudents, createStudent } from './studentController.js';
+import Student from './studentModel.js';
+import { ObjectId } from 'mongodb';
 
 function checkForDuplicates(array) {
   return new Set(array).size !== array.length
 }
 
-export default function validateStudentRequest(request, response) {
+export function validateStudentRequest(request, response) {
 
   const {date,  gradeReference } = request.body;
 
@@ -17,7 +19,7 @@ export default function validateStudentRequest(request, response) {
   checkMonitorAvailability(gradeReference)
     .then( available => {
 
-      countStudents(date).then(underLimit =>{
+      countStudents(date,gradeReference).then(underLimit =>{
 
         if (available && underLimit) {
           createStudent(request, response); // Chama a função para cadastrar o aluno
@@ -36,4 +38,15 @@ export default function validateStudentRequest(request, response) {
     .catch((error) => {
       response.status(500).json({ error: 'Erro ao verificar disponibilidade do monitor: ' + error });
     });
+}
+
+
+export async function removeStudent(req, res) {
+  try {
+      const query = { _id: new ObjectId(req.body._id) };
+      await Student.deleteOne(query);
+      res.status(200).json({ message: 'Aluno removido com sucesso' });
+  } catch (error) {
+      res.status(500).json({ error: 'Erro ao remover aluno: ' + error });
+  }
 }
